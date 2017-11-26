@@ -78,19 +78,37 @@ DOWN = Vector(0, VECTOR_SIZE)
 
 class Shot:
 
-    def __init__(self, game, init_pos):
-        self.game = game
+    def __init__(self, game_, init_pos):
+        self.game = game_
         self.position = Position(init_pos.x, init_pos.y)
         self.speed = 5
 
     def update(self):
-        self.position.update(Vector(0, -self.speed))
+        pass
 
     def encounters(self, other):
         return self.position == other.position
 
     def show(self):
         pygame.draw.circle(self.game.screen, RED, self.position.coordinates(), 5)
+
+
+class FriendlyShot(Shot):
+
+    def __init__(self, game_, init_pos):
+        Shot.__init__(self, game_, init_pos)
+
+    def update(self):
+        self.position.update(Vector(0, -self.speed))
+
+
+class EnemyShot(Shot):
+
+    def __init__(self, game_, init_pos):
+        Shot.__init__(self, game_, init_pos)
+
+    def update(self):
+        self.position.update(Vector(0, self.speed))
 
 
 class Spaceship:
@@ -100,7 +118,7 @@ class Spaceship:
         self.position = Position(WIDTH / 2, HEIGHT - 20)
 
     def shoot(self):
-        self.game.shots.append(Shot(self.game, self.position))
+        self.game.friendly_shots.append(FriendlyShot(self.game, self.position))
 
     def show(self):
         pygame.draw.circle(self.game.screen, BLACK, self.position.coordinates(), 10)
@@ -131,6 +149,9 @@ class Enemy:
     def kill(self):
         self.game.enemies.remove(self)
 
+    def shoot(self):
+        self.game.enemy_shots.append(EnemyShot(self.game, self.position))
+
     def show(self):
         self.vibrate()
         pygame.draw.circle(self.game.screen, GREEN, self.position.coordinates(), 10)
@@ -142,7 +163,8 @@ class Game:
         self.screen = screen_
         self.ship = Spaceship(self)
         self.object_padding = object_padding
-        self.shots = []
+        self.friendly_shots = []
+        self.enemy_shots = []
         self.enemies = []
         self.spawn_enemies()
 
@@ -187,18 +209,31 @@ if __name__ == '__main__':
 
         # ===========> UPDATE POSITIONS HERE <========
 
-        for shot in game.shots:
+        if len(game.enemy_shots) < 10:
+            pass
+
+        for shot in game.friendly_shots:
             shot.update()
 
-        for shot in game.shots:
+        for shot in game.enemy_shots:
+            shot.update()
+
+        for shot in game.friendly_shots:
             for enemy in game.enemies:
                 if shot.encounters(enemy):
                     enemy.kill()
 
+        for shot in game.enemy_shots:
+            if shot.encounters(game.ship):
+                exit(1)
+
         # ===========> START DRAWING HERE <===========
 
         game.ship.show()
-        for shot in game.shots:
+        for shot in game.friendly_shots:
+            shot.show()
+
+        for shot in game.enemy_shots:
             shot.show()
 
         for enemy in game.enemies:

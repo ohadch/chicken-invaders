@@ -90,7 +90,7 @@ class Shot:
         return self.position == other.position
 
     def show(self):
-        pygame.draw.circle(self.game.screen, RED, self.position.coordinates(), 5)
+        pygame.draw.circle(self.game.screen, BLUE, self.position.coordinates(), 5)
 
 
 class FriendlyShot(Shot):
@@ -109,6 +109,9 @@ class EnemyShot(Shot):
 
     def update(self):
         self.position.update(Vector(0, self.speed))
+
+    def show(self):
+        pygame.draw.circle(self.game.screen, RED, self.position.coordinates(), 5)
 
 
 class Spaceship:
@@ -173,6 +176,11 @@ class Game:
         for pos in positions_:
             self.enemies.append(Enemy(self, pos))
 
+    def enemies_shoot(self):
+        shooting_chance = 0.1
+        if random.random() < shooting_chance:
+            random.choice(self.enemies).shoot()
+
 
 if __name__ == '__main__':
 
@@ -209,27 +217,26 @@ if __name__ == '__main__':
 
         # ===========> UPDATE POSITIONS HERE <========
 
-        if len(game.enemy_shots) < 10:
-            pass
+        game.enemies_shoot()
 
         for shot in game.friendly_shots:
             shot.update()
-
-        for shot in game.enemy_shots:
-            shot.update()
-
-        for shot in game.friendly_shots:
             for enemy in game.enemies:
                 if shot.encounters(enemy):
                     enemy.kill()
+                    del enemy
+                    del shot
+                    break
 
         for shot in game.enemy_shots:
+            shot.update()
             if shot.encounters(game.ship):
                 exit(1)
 
         # ===========> START DRAWING HERE <===========
 
         game.ship.show()
+
         for shot in game.friendly_shots:
             shot.show()
 

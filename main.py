@@ -1,4 +1,3 @@
-import random
 import pygame
 
 from src.core.game import Game

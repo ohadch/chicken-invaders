@@ -1,5 +1,7 @@
 # Chicken Invaders
 
+![Screen Recording 2024-11-23 at 7 26 48](https://github.com/user-attachments/assets/055a5930-f6ba-4fee-8232-42381c1d2ba6)
+
 ## Overview
 Chicken Invaders is a simple game where players control a spaceship and shoot down enemies.
 
